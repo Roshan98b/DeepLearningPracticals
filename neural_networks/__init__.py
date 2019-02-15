@@ -1,13 +1,12 @@
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder
 
-def one_hot_encoded(y_train, classes = 0):
-    one_hot = np.zeros((len(y_train), classes))
-    array = y_train
-    if type(array) is not np.ndarray: 
-        array = np.array(y_train)
-    for i in range(len(y_train)):
-        one_hot[i][array[i]] = 1.0
-    return one_hot
+def one_hot_encoded(y, classes = 0):
+    values = y
+    onehot_encoder = OneHotEncoder(sparse=False, categories='auto')
+    integer_encoded = values.reshape(len(values), 1)
+    one_hot_encoded = onehot_encoder.fit_transform(integer_encoded)
+    return one_hot_encoded
 
 class Model:
     
@@ -139,8 +138,8 @@ class Model:
         
         for epoch in range(epochs): 
             for batch in range(batches):
-                for record, label in zip(X_train[batch], y_train[batch]):
-                    true_output = np.array([label])
+                for record, label in zip(X_train[batch], y_train[batch]):                    
+                    true_output = np.array(label)
                     predicted_output = self.neural_network_output(np.array(record))
 
                     # gradient of output layer
@@ -152,9 +151,9 @@ class Model:
                     
                     # Jacobian Output Layer - Jw = input * grad_o and Jb = 1.0 * grad_o
                     if self.num_layers-2 < 0:
-                        self.jacobian_weights[self.num_layers-1] += np.array(record) * grad_o
-                    
-                    self.jacobian_weights[self.num_layers-1] += grad_o[:, None] @ self.layers[self.num_layers-2][None, :]
+                        self.jacobian_weights[self.num_layers-1] += grad_o[:, None] @ np.array(record)[None, :]
+                    else:
+                        self.jacobian_weights[self.num_layers-1] += grad_o[:, None] @ self.layers[self.num_layers-2][None, :]
                     self.jacobian_biases[self.num_layers-1] += grad_o
                     
                     # gradient of hidden layer
@@ -166,12 +165,15 @@ class Model:
                         num_of_neurons_next = self.layers_info['Layer_'+str(i+2)]['size']
                         
                         # derivative of hidden loss * derivetive of activation
-                        grad_h = self.hidden_loss_derivative(grad_next, i, num_of_neurons_next) * self.activation_derivative(output_vector_i, net_sum_i, activation)
+                        loss_grad = self.hidden_loss_derivative(grad_next, i, num_of_neurons_next)
+                        activation_grad = self.activation_derivative(output_vector_i, net_sum_i, activation) 
+                        grad_h = np.tensordot(loss_grad, activation_grad, axes=0)[0]
                         
                         # Jacobian Hidden layer - Jw = input * grad_next and Jb = 1.0 * grad_next
                         if i-1 < 0:
                             self.jacobian_weights[i] += grad_h[:, None] @ np.array(record)[None, :]
-                        self.jacobian_weights[i] += grad_h[:, None] @ self.layers[i-1][None, :]
+                        else:
+                            self.jacobian_weights[i] += grad_h[:, None] @ self.layers[i-1][None, :]
                         self.jacobian_biases[i] += grad_h
                         
                         # change the gradient
@@ -214,14 +216,21 @@ class Model:
         # Loss
         loss = 0
         for record, label in zip(X_test, y_test):
-            true_output = label
+            true_output = np.array(label)
             predicted_output = self.neural_network_output(record)
-            loss += self.loss_function(true_output, predicted_output)
-        print('Training Loss: ',loss/len(X_test))
+            loss += self.loss_function(true_output, predicted_output)        
+        print('Loss: ',sum(loss)/(len(X_test) * len(loss)))
         
         # Accuracy
-        true_output = y_test
+        true_output = []
+        if len(y_test.shape) > 1:
+            for i in y_test:
+                true_output.append(np.argmax(i))
+        true_output = np.array(true_output)
         predicted_output = self.predict(X_test)
-        x = np.logical_not(np.logical_xor(true_output, predicted_output))
-        accuracy = len(x[x==True])/len(x)
-        print('Training Accuracy: ',accuracy)
+        count = 0
+        for true, pred in zip(true_output, predicted_output):
+            if (true == pred):
+                count += 1
+        accuracy = count/len(true_output)
+        print('Accuracy: ',accuracy)
