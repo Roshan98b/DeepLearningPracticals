@@ -226,6 +226,8 @@ class Model:
         if len(y_test.shape) > 1:
             for i in y_test:
                 true_output.append(np.argmax(i))
+        else:
+            true_output = y_test
         true_output = np.array(true_output)
         predicted_output = self.predict(X_test)
         count = 0
