@@ -1,8 +1,8 @@
 import numpy as np
-from neural_networks.activation import sigmoid, relu, softmax
 from neural_networks.loss import mse
 from neural_networks.preprocessing import one_hot_encoded
-from neural_networks.optimization import neural_network_output
+from neural_networks.training import neural_network_output
+from neural_networks.optimization import gd, sgd
 
 class Model:
     
@@ -39,34 +39,21 @@ class Model:
     def set_parameters(self, lr = 0.01, loss = 'mse', optimization = 'gd'):
         self.loss = loss
         self.optimization = optimization
+        self.lr = lr
         if loss == 'mse':
-            self.loss_function = classmethod(mse)
+            self.loss_function = mse
         elif loss == 'categorical_crossentropy':
             pass
-        if optimization == 'gd':
-            pass
-        elif optimization == 'sgd':
-            pass
-        elif optimization == 'rmsprop':
-            pass
-        elif optimization == 'adagrad':
-            pass
-        elif optimization == 'adam':
-            pass
-        self.lr = lr
-        
-    def activation(self, net_sum, activation):
-        if activation == 'sigmoid':
-            activation_function = sigmoid
-            output_vector = np.array([activation_function(i) for i in net_sum]).transpose()
-        elif activation == 'relu':
-            activation_function = relu
-            output_vector = np.array([activation_function(i) for i in net_sum]).transpose()
-        elif activation == 'softmax':
-            activation_function = softmax
-            output_vector = activation_function(net_sum)
-        return output_vector
-    
+
+    # Training
+    def train(self, X_train, y_train, epochs=1, batch_size=1):
+        if self.optimization == 'sgd':
+            sgd(self, X_train, y_train, epochs, batch_size)
+        elif self.optimization == 'gd':
+            if (batch_size != 1):
+                print('Number of batches by default in Gradient descent is set to 1')
+            gd(self, X_train, y_train, epochs)
+
     # Predict
     def predict(self, X_test):
         predictions = []
