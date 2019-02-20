@@ -1,4 +1,5 @@
 import numpy as np
+from math import log
 
 # For output layer and hidden layer
 # Derivative Chain Rule
@@ -8,13 +9,17 @@ import numpy as np
 def mse(true, pred):
     return ((true-pred)**2)/2
 
+# Cross Entropy
+def cross_entropy(true, pred):
+    return -true*log(pred)
+
 # For output layer
 # d(E)/d(output) = derivative of loss function
 def output_loss_derivative(loss, true, pred):
     if loss == 'mse':
         return true-pred
-    elif loss == 'categorical_crossentropy':
-        pass
+    elif loss == 'cross_entropy':
+        return -true/pred 
     else:
         pass
 

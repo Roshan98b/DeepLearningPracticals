@@ -8,6 +8,10 @@ import numpy as np
 def sigmoid(x):
     return 1 / (1 + (np.e ** -x))
 
+# Tanh
+def tanh(x):
+    return np.tanh(x)
+
 # ReLU - Rectified Linear Unit
 def relu(x):
     return max(0, x)
@@ -25,5 +29,7 @@ def activation_derivative(output_vector_i, net_sum_i, activation):
         return output_vector_i * (1 - output_vector_i)
     elif activation == 'softmax':
         return output_vector_i * (1 - output_vector_i)
+    elif activation == 'tanh':
+        return 1 - output_vector_i**2
     else:
-        return output_vector_i * (1 - output_vector_i)
+        return np.ones(len(output_vector_i))

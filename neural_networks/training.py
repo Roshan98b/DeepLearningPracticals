@@ -1,6 +1,6 @@
 import numpy as np
 from neural_networks.loss import output_loss_derivative, hidden_loss_derivative
-from neural_networks.activation import sigmoid, relu, softmax, activation_derivative
+from neural_networks.activation import sigmoid, tanh, relu, softmax, activation_derivative
 
 # Creation of Jacobian Matrix
 def initialize_jacobian(self, X_train):
@@ -32,6 +32,9 @@ def create_batches(self, X_train, y_train, batch_size):
 def activation(net_sum, activation):
     if activation == 'sigmoid':
         activation_function = sigmoid
+        output_vector = np.array([activation_function(i) for i in net_sum]).transpose()
+    elif activation == 'tanh':
+        activation_function = tanh
         output_vector = np.array([activation_function(i) for i in net_sum]).transpose()
     elif activation == 'relu':
         activation_function = relu

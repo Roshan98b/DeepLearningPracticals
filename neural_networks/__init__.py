@@ -1,5 +1,5 @@
 import numpy as np
-from neural_networks.loss import mse
+from neural_networks.loss import mse, cross_entropy
 from neural_networks.preprocessing import one_hot_encoded
 from neural_networks.training import neural_network_output
 from neural_networks.optimization import gd, sgd
@@ -42,8 +42,8 @@ class Model:
         self.lr = lr
         if loss == 'mse':
             self.loss_function = mse
-        elif loss == 'categorical_crossentropy':
-            pass
+        elif loss == 'cross_entropy':
+            self.loss_function = cross_entropy
 
     # Training
     def train(self, X_train, y_train, epochs=1, batch_size=1):
