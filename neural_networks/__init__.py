@@ -2,7 +2,7 @@ import numpy as np
 from neural_networks.loss import mse, cross_entropy
 from neural_networks.preprocessing import one_hot_encoded
 from neural_networks.training import neural_network_output
-from neural_networks.optimization import gd, sgd
+from neural_networks.optimization import gd, sgd, nam
 
 class Model:
     
@@ -18,6 +18,8 @@ class Model:
         self.biases = []
         self.jacobian_weights = []
         self.jacobian_biases = []
+        self.velocity_weights = []
+        self.velocity_biases = []
     
     # Add a fully connected layer
     def add_dense_layer(self, size, input_size = 0, activation = 'linear'):
@@ -54,6 +56,8 @@ class Model:
             if (batch_size != 1):
                 print('Number of batches by default in Gradient descent is set to 1')
             gd(self, X_train, y_train, epochs)
+        elif self.optimization == 'nam':
+            nam(self, X_train, y_train, epochs, batch_size)
 
     # Predict
     def predict(self, X_test):
