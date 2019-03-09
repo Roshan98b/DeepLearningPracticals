@@ -12,8 +12,8 @@ def gd(self, X_train, y_train, epochs = 1):
         # Update weights and biases
         accumulated_jacobian_average(self, record)            
         for i in range(self.num_layers-1, -1, -1):
-            self.weights[i] += self.lr * self.jacobian_weights[i]
-            self.biases[i] += self.lr * self.jacobian_biases[i]
+            self.weights[i] += -self.lr * self.jacobian_weights[i]
+            self.biases[i] += -self.lr * self.jacobian_biases[i]
         print_info(self, epoch)
 
 # Stochastic Gradient Descent (mini batches)
@@ -29,8 +29,8 @@ def sgd(self, X_train, y_train, epochs, batch_size):
             # Update weights and biases
             accumulated_jacobian_average(self, record)            
             for i in range(self.num_layers-1, -1, -1):
-                self.weights[i] += self.lr * self.jacobian_weights[i]
-                self.biases[i] += self.lr * self.jacobian_biases[i]
+                self.weights[i] += -self.lr * self.jacobian_weights[i]
+                self.biases[i] += -self.lr * self.jacobian_biases[i]
         print_info(self, epoch)    
 
 # Nestrov's Accelerated Momentum
@@ -43,21 +43,24 @@ def nam(self, X_train, y_train, epochs, batch_size):
             initialize_jacobian(self, x)
             for record, label in zip(X_train[batch], y_train[batch]):
                 evaluate_gradient(self, record, label)
-            
-            # Update weights and biases with new velocity
+   
+            # Update weights and biases with velocity
+            # velocity_prev = velocity
+            # velocity = m*velocity - lr*jacobian
+            # weights += -m*velocity_prev + (1+m)*velocity
             accumulated_jacobian_average(self, record)            
             for i in range(self.num_layers-1, -1, -1):
                 # weights
                 velocity_w = self.velocity_weights[i]
-                self.velocity_weights[i] = (self.m * self.velocity_weights[i]) + (self.lr * self.jacobian_weights[i])
+                self.velocity_weights[i] = (self.m * self.velocity_weights[i]) - (self.lr * self.jacobian_weights[i])
                 self.weights[i] += (-self.m * velocity_w) + ((1+self.m) * self.velocity_weights[i])
                 # biases
                 velocity_b = self.velocity_biases[i]
-                self.velocity_biases[i] = (self.m * self.velocity_biases[i]) + (self.lr * self.jacobian_biases[i])
+                self.velocity_biases[i] = (self.m * self.velocity_biases[i]) - (self.lr * self.jacobian_biases[i])
                 self.biases[i] += (-self.m * velocity_b) + ((1+self.m) * self.velocity_biases[i])
         print_info(self, epoch)
 
 # Adagrad
-# Adadelta
 # RMSProp
+# Adadelta
 # Adam

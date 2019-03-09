@@ -17,7 +17,7 @@ def cross_entropy(true, pred):
 # d(E)/d(output) = derivative of loss function
 def output_loss_derivative(loss, true, pred):
     if loss == 'mse':
-        return true-pred
+        return -(true-pred)
     elif loss == 'cross_entropy':
         return -true/pred 
     else:
