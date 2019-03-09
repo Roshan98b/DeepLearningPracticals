@@ -2,7 +2,7 @@ import numpy as np
 from neural_networks.loss import mse, cross_entropy
 from neural_networks.preprocessing import one_hot_encoded
 from neural_networks.training import neural_network_output
-from neural_networks.optimization import gd, sgd, nam
+from neural_networks.optimization import gd, sgd, nam, adagrad, rmsprop, adam
 
 class Model:
     
@@ -20,6 +20,8 @@ class Model:
         self.jacobian_biases = []
         self.velocity_weights = []
         self.velocity_biases = []
+        self.squared_gradient_weights = []
+        self.squared_gradient_biases = []
     
     # Add a fully connected layer
     def add_dense_layer(self, size, input_size = 0, activation = 'linear'):
@@ -38,11 +40,15 @@ class Model:
         self.biases.append(np.random.randn(size) * np.sqrt(1/size))
         
     # Selection of Loss Function and Optimization function
-    def set_parameters(self, lr = 0.01, m = 0.9, loss = 'mse', optimization = 'gd'):
+    def set_parameters(self, lr = 0.01, m = 0.9, d = 0.999, loss = 'mse', optimization = 'gd'):
         self.loss = loss
         self.optimization = optimization
+        # Learning Rate
         self.lr = lr
+        # Momentum
         self.m = m
+        # Decay
+        self.d = d
         if loss == 'mse':
             self.loss_function = mse
         elif loss == 'cross_entropy':
@@ -58,6 +64,12 @@ class Model:
             gd(self, X_train, y_train, epochs)
         elif self.optimization == 'nam':
             nam(self, X_train, y_train, epochs, batch_size)
+        elif self.optimization == 'adagrad':
+            adagrad(self, X_train, y_train, epochs, batch_size)
+        elif self.optimization == 'rmsprop':
+            rmsprop(self, X_train, y_train, epochs, batch_size)
+        elif self.optimization == 'adam':
+            adam(self, X_train, y_train, epochs, batch_size)
 
     # Predict
     def predict(self, X_test):
