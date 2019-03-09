@@ -15,6 +15,19 @@ def initialize_jacobian(self, X_train):
             input_size = len(self.layers[i-1])
         self.jacobian_weights.append(np.zeros((size, input_size)))
 
+# Creation of Velocity Matrix
+def initialize_velocity(self, X_train):
+    # initializing Velocity
+    for i in range(self.num_layers):
+        size = self.layers_info['Layer_'+str(i+1)]['size']            
+        input_size = 0
+        self.velocity_biases.append(np.zeros((size)))
+        if i == 0:
+            input_size = X_train.shape[1]
+        else:
+            input_size = len(self.layers[i-1])
+        self.velocity_weights.append(np.zeros((size, input_size)))
+
 # Create Training data based on branches    
 def create_batches(self, X_train, y_train, batch_size):
     # Creation of batches

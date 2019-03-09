@@ -36,10 +36,11 @@ class Model:
         self.biases.append(np.random.randn(size) * np.sqrt(1/size))
         
     # Selection of Loss Function and Optimization function
-    def set_parameters(self, lr = 0.01, loss = 'mse', optimization = 'gd'):
+    def set_parameters(self, lr = 0.01, m = 0.9, loss = 'mse', optimization = 'gd'):
         self.loss = loss
         self.optimization = optimization
         self.lr = lr
+        self.m = m
         if loss == 'mse':
             self.loss_function = mse
         elif loss == 'cross_entropy':
